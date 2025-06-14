@@ -61,6 +61,29 @@ public class PlayerBehaviour : MonoBehaviour
             }
         }
 
+        else if (other.gameObject.CompareTag("Door"))
+        {
+            DoorBehaviour door = other.gameObject.GetComponent<DoorBehaviour>();
+            if (door != null)
+            {
+                currentDoor = other.GetComponent<DoorBehaviour>();
+                canInteract = true; // Allow interaction with the door
+                Debug.Log("Player can interact with the door.");
+            }
+        }
+
+    }
+
+    public void OnInteract()
+    {
+        if (canInteract)
+        {
+            if (currentDoor != null)
+            {
+                Debug.Log("Interacting with door.");
+                currentDoor.Interact();
+            }
+        }
     }
 
 
