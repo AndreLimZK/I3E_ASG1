@@ -3,11 +3,16 @@ using UnityEngine;
 public class CoinBehaviour : MonoBehaviour
 {
     public int coinValue = 1;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public void Collect(playerBehaviour player)
+    public AudioClip collectSound; // Assign in Inspector
+
+    public void Collect(PlayerBehaviour player)
     {
-        // Add coin collection logic here
-        player.ModifyScore();
+        player.ModifyScore(this);
+        if (collectSound != null)
+        {
+            AudioSource.PlayClipAtPoint(collectSound, transform.position);
+        }
         Destroy(gameObject);
     }
+
 }

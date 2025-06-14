@@ -1,16 +1,23 @@
 using UnityEngine;
+using TMPro; // For UI elements like health bar
 
 public class PlayerBehaviour : MonoBehaviour
 {
     public int maxHealth = 100;
     public float currentHealth;
     public HealthBar healthbar;
+    public AudioClip damageSound; // Assign in Inspector
+    private AudioSource audioSource; // Reference to the AudioSource component for sound effects
 
     private float damageTimer = 0f;
     public float damageInterval = 1f; // seconds between damage ticks
 
+    public Vector3 respawnPoint; // Assign this in the Inspector
+
     int points = 0;
     CoinBehaviour currentCoin;
+    public TMP_Text scoreText; // Assign in Inspector
+
     private DoorBehaviour currentDoor;
     bool canInteract = false;
 
@@ -20,9 +27,25 @@ public class PlayerBehaviour : MonoBehaviour
         healthbar.SetSlider(currentHealth);
         Debug.Log("Player initialized with max health: " + maxHealth);
     }
+
+    void Awake()
+    {
+        audioSource = GetComponent<AudioSource>(); // Get the AudioSource component
+        if (audioSource == null)
+        {
+            Debug.LogWarning("AudioSource component not found on PlayerBehaviour.");
+        }
+    }
+
+    public void UpdateScoreUI()
+    {
+        scoreText.text = "Score: " + points;
+    }
+
     public void ModifyScore(CoinBehaviour currentCoin)
     {
         points += currentCoin.coinValue;
+        UpdateScoreUI();
         Debug.Log("Score" + points);
     }
 
@@ -48,6 +71,7 @@ public class PlayerBehaviour : MonoBehaviour
                     currentHealth = maxHealth; // Ensure health does not exceed max health
                 healthbar.SetSlider(currentHealth); // Update health bar
                 Debug.Log("Player healed! Current health: " + currentHealth);
+                healArea.PlayHealSound(); // Play healing sound
                 Destroy(healArea.gameObject); // Destroy the heal box after use
             }
         }
@@ -61,6 +85,10 @@ public class PlayerBehaviour : MonoBehaviour
             if (damageArea != null)
             {
                 currentHealth -= damageArea.damageAmount;
+                if (damageSound != null && audioSource != null)
+                {
+                    audioSource.PlayOneShot(damageSound);
+                }
                 if (currentHealth < 0)
                     currentHealth = 0; // Ensure health does not go below zero
                 healthbar.SetSlider(currentHealth);
@@ -117,6 +145,10 @@ public class PlayerBehaviour : MonoBehaviour
                 if (damageArea != null)
                 {
                     currentHealth -= damageArea.damageAmount;
+                    if (damageSound != null && audioSource != null)
+                    {
+                        audioSource.PlayOneShot(damageSound);
+                    }
                     if (currentHealth < 0)
                         currentHealth = 0;
                     healthbar.SetSlider(currentHealth);
@@ -156,6 +188,5 @@ public class PlayerBehaviour : MonoBehaviour
         respawnPoint = newPoint;
         Debug.Log("Respawn point set to: " + respawnPoint);
     }
-
 
 }

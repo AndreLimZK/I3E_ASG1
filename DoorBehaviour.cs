@@ -4,7 +4,12 @@ public class DoorBehaviour : MonoBehaviour
 {
     private bool isOpen = false; // controls the state of the door
     public bool isDoorLocked = true; // Set door locked status
+    private AudioSource doorAudio; // Reference to the AudioSource component for sound effects
 
+    void Awake()
+    {
+        doorAudio = GetComponent<AudioSource>();
+    }
 
     public void Interact()
     {
@@ -30,6 +35,11 @@ public class DoorBehaviour : MonoBehaviour
         transform.eulerAngles = doorRotation;
         isOpen = true;
         Debug.Log("Door opened!");
+
+        if (doorAudio != null)
+        {
+            doorAudio.Play(); // Play door opening sound
+        }
     }
 
     public void Close()
