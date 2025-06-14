@@ -145,7 +145,16 @@ public class PlayerBehaviour : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("Player has died.");  // Implement death logic here, e.g., respawn or game over
+        Debug.Log("Player has died.");
+        currentHealth = maxHealth; // Reset health to max
+        healthbar.SetSlider(currentHealth); // Update health bar
+        transform.position = respawnPoint; // Respawn at the set respawn point
+    }
+
+    public void SetRespawnPoint(Vector3 newPoint)
+    {
+        respawnPoint = newPoint;
+        Debug.Log("Respawn point set to: " + respawnPoint);
     }
 
 
