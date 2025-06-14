@@ -74,6 +74,21 @@ public class PlayerBehaviour : MonoBehaviour
 
     }
 
+    void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("Door"))
+        {
+            DoorBehaviour door = other.gameObject.GetComponent<DoorBehaviour>();
+            if (door != null && currentDoor == door)
+            {
+                door.Close(); // Close the door when exiting
+                currentDoor = null;
+                canInteract = false; // Disable interaction with the door
+                Debug.Log("Player exited door interaction.");
+            }
+        }
+    }
+
     public void OnInteract()
     {
         if (canInteract)

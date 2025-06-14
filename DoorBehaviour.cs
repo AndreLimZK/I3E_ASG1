@@ -2,19 +2,51 @@ using UnityEngine;
 
 public class DoorBehaviour : MonoBehaviour
 {
-    private bool isOpen = false; //controls the state of the door
+    private bool isOpen = false; // controls the state of the door
+    public bool isDoorLocked = true; // Set door locked status
+
+
     public void Interact()
     {
-        Vector3 doorRotation = transform.eulerAngles;
+        if (isDoorLocked)
+        {
+            Debug.Log("Door is locked! Find a key to unlock it.");
+            return; // Exit if the door is locked
+        }
         if (!isOpen)
         {
-            doorRotation.y -= 90f; // Rotate the door by 90 degrees
+            OpenDoor();
         }
         else
         {
-            doorRotation.y += 90f; // Rotate the door back to closed position
+            Close();
         }
+    }
+
+    public void OpenDoor()
+    {
+        Vector3 doorRotation = transform.eulerAngles;
+        doorRotation.y -= 90f; // Rotate the door by 90 degrees
         transform.eulerAngles = doorRotation;
-        isOpen = !isOpen;
+        isOpen = true;
+        Debug.Log("Door opened!");
+    }
+
+    public void Close()
+    {
+        if (isOpen)
+        {
+            Vector3 doorRotation = transform.eulerAngles;
+            doorRotation.y += 90f; // Rotate the door back to closed position
+            transform.eulerAngles = doorRotation;
+            isOpen = false;
+            Debug.Log("Door closed!");
+        }
+    }
+
+    public void DoorUnlock()
+    {
+        isDoorLocked = false; // Set door unlocked status
+        Debug.Log("Door is unlocked.");
     }
 }
