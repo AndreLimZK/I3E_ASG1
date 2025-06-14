@@ -2,18 +2,21 @@ using UnityEngine;
 
 public class PlayerBehaviour : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     public int maxHealth = 100;
-    public int currentHealth;
+    public float currentHealth;
     public HealthBar healthbar;
+
+    private float damageTimer = 0f;
+    public float damageInterval = 1f; // seconds between damage ticks
 
     int points = 0;
     CoinBehaviour currentCoin;
+    private DoorBehaviour currentDoor;
+    bool canInteract = false;
 
     void Start()
     {
-        currentHealth = maxHealth;
-        // Initialize health bar with max health
+        currentHealth = maxHealth;  // Initialize health bar with max health
         healthbar.SetSlider(currentHealth);
         Debug.Log("Player initialized with max health: " + maxHealth);
     }
@@ -41,6 +44,8 @@ public class PlayerBehaviour : MonoBehaviour
             if (healArea != null)
             {
                 currentHealth += healArea.healAmount;
+                if (currentHealth > maxHealth)
+                    currentHealth = maxHealth; // Ensure health does not exceed max health
                 healthbar.SetSlider(currentHealth); // Update health bar
                 Debug.Log("Player healed! Current health: " + currentHealth);
                 Destroy(healArea.gameObject); // Destroy the heal box after use
@@ -56,8 +61,14 @@ public class PlayerBehaviour : MonoBehaviour
             if (damageArea != null)
             {
                 currentHealth -= damageArea.damageAmount;
+                if (currentHealth < 0)
+                    currentHealth = 0; // Ensure health does not go below zero
                 healthbar.SetSlider(currentHealth);
                 Debug.Log("Player damaged! Current health: " + currentHealth);
+                if (currentHealth == 0)
+                {
+                    Die();  // Call the Die method if health reaches zero
+                }
             }
         }
 
@@ -87,6 +98,37 @@ public class PlayerBehaviour : MonoBehaviour
                 Debug.Log("Player exited door interaction.");
             }
         }
+
+        else if (other.gameObject.CompareTag("damageArea"))
+        {
+            damageTimer = 0f; // Reset damage timer when exiting the damage area
+            Debug.Log("Player exited damage area.");
+        }
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.CompareTag("damageArea"))
+        {
+            damageTimer += Time.deltaTime;
+            if (damageTimer >= damageInterval)
+            {
+                DamageArea damageArea = other.gameObject.GetComponent<DamageArea>();
+                if (damageArea != null)
+                {
+                    currentHealth -= damageArea.damageAmount;
+                    if (currentHealth < 0)
+                        currentHealth = 0;
+                    healthbar.SetSlider(currentHealth);
+                    Debug.Log("Player taking damage! Current health: " + currentHealth);
+                    if (currentHealth == 0)
+                    {
+                        Die();
+                    }
+                }
+                damageTimer = 0f; // Reset timer after applying damage
+            }
+        }
     }
 
     public void OnInteract()
@@ -99,6 +141,11 @@ public class PlayerBehaviour : MonoBehaviour
                 currentDoor.Interact();
             }
         }
+    }
+
+    void Die()
+    {
+        Debug.Log("Player has died.");  // Implement death logic here, e.g., respawn or game over
     }
 
 
