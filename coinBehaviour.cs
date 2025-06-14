@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class coinBehaviour : MonoBehaviour
+public class CoinBehaviour : MonoBehaviour
 {
     public int coinValue = 1;
     // Start is called once before the first execution of Update after the MonoBehaviour is created

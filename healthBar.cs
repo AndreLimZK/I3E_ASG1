@@ -1,13 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class healthBar : MonoBehaviour
+public class HealthBar : MonoBehaviour
 {
     public Slider healthSlider; // Reference to the UI Slider component
 
-    public void SetSlider(float maxHealth)
+    public void SetSlider(float currentHealth)
     {
-        healthSlider.maxValue = maxHealth; // Set the slider's max value
-        healthSlider.value = maxHealth; // Set the slider value to the current health
+        healthSlider.value = currentHealth;
     } 
 }

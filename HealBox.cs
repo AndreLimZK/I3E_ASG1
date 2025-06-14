@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class DamageArea : MonoBehaviour
+public class HealBox : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public int damageAmount = 10;
-    
+    public int healAmount = 10;
 }
