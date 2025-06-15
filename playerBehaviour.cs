@@ -1,5 +1,5 @@
 using UnityEngine;
-using TMPro; // For UI elements like health bar
+using TMPro;
 
 public class PlayerBehaviour : MonoBehaviour
 {
@@ -17,15 +17,28 @@ public class PlayerBehaviour : MonoBehaviour
     int points = 0;
     CoinBehaviour currentCoin;
     public TMP_Text scoreText; // Assign in Inspector
+    public TMP_Text prizesLeftText; // Assign in Inspector
+    public TMP_Text finalScoreText; // Assign in Inspector
+    public TMP_Text keycardStatusText; // Assign in Inspector
+
 
     private DoorBehaviour currentDoor;
-    bool canInteract = false;
+    bool canInteractDoor = false;
+    private bool canCollectKeycard = false;
+    private GameObject keycardInRange;
+    private bool hasKeycard = false;
+    private bool canCollectPrize = false;
+    private GameObject prizeInRange;
+    public int prizesCollected = 0;
+    public int totalPrizes = 3;
+    public GameObject victoryUI; // Assign in Inspector
 
     void Start()
     {
         currentHealth = maxHealth;  // Initialize health bar with max health
         healthbar.SetSlider(currentHealth);
-        Debug.Log("Player initialized with max health: " + maxHealth);
+        UpdatePrizesLeftUI(); // Initialize prizes left UI
+        UpdateKeycardStatusUI(); // Initialize keycard status UI
     }
 
     void Awake()
@@ -40,6 +53,20 @@ public class PlayerBehaviour : MonoBehaviour
     public void UpdateScoreUI()
     {
         scoreText.text = "Score: " + points;
+    }
+
+    public void UpdatePrizesLeftUI()
+    {
+        int prizesLeft = totalPrizes - prizesCollected;
+        prizesLeftText.text = "Prizes left: " + prizesLeft + "/" + totalPrizes;
+    }
+
+    public void UpdateKeycardStatusUI()
+    {
+        if (hasKeycard)
+            keycardStatusText.text = "Keycard: Collected";
+        else
+            keycardStatusText.text = "Keycard: Not Collected";
     }
 
     public void ModifyScore(CoinBehaviour currentCoin)
@@ -106,9 +133,21 @@ public class PlayerBehaviour : MonoBehaviour
             if (door != null)
             {
                 currentDoor = other.GetComponent<DoorBehaviour>();
-                canInteract = true; // Allow interaction with the door
-                Debug.Log("Player can interact with the door.");
+                canInteractDoor = true; // Allow interaction with the door
             }
+        }
+
+        else if (other.gameObject.CompareTag("Prize"))
+        {
+            canCollectPrize = true;
+            prizeInRange = other.gameObject; // Store the prize GameObject
+        }
+
+        else if (other.gameObject.CompareTag("Keycard"))
+        {
+            canCollectKeycard = true;
+            keycardInRange = other.gameObject; // Store the keycard GameObject
+            Debug.Log("Entered keycard area, canCollectKeycard set to true.");
         }
 
     }
@@ -122,15 +161,26 @@ public class PlayerBehaviour : MonoBehaviour
             {
                 door.Close(); // Close the door when exiting
                 currentDoor = null;
-                canInteract = false; // Disable interaction with the door
-                Debug.Log("Player exited door interaction.");
+                canInteractDoor = false; // Disable interaction with the door
             }
         }
 
         else if (other.gameObject.CompareTag("damageArea"))
         {
             damageTimer = 0f; // Reset damage timer when exiting the damage area
-            Debug.Log("Player exited damage area.");
+        }
+
+        else if (other.gameObject.CompareTag("Prize"))
+        {
+            canCollectPrize = false;
+            prizeInRange = null; // Clear the stored prize GameObject
+        }
+
+        else if (other.gameObject.CompareTag("Keycard"))
+        {
+            canCollectKeycard = false;
+            keycardInRange = null; // Clear the stored keycard GameObject
+            Debug.Log("Exited keycard area, canCollectKeycard set to false.");
         }
     }
 
@@ -165,13 +215,52 @@ public class PlayerBehaviour : MonoBehaviour
 
     public void OnInteract()
     {
-        if (canInteract)
+        if (canInteractDoor && currentDoor != null)
         {
-            if (currentDoor != null)
+            currentDoor.Interact();
+        }
+        else if (canCollectPrize && prizeInRange != null)
+        {
+            PrizeBehaviour prizeBehaviour = prizeInRange.GetComponent<PrizeBehaviour>();
+            if (prizeBehaviour != null)
             {
-                Debug.Log("Interacting with door.");
-                currentDoor.Interact();
+                prizeBehaviour.PlayCollectEffect(); // Play collection effect
             }
+
+            prizesCollected++;
+            UpdatePrizesLeftUI(); // Update the UI to reflect the number of prizes left
+            Debug.Log("Prize collected! Total prizes: " + prizesCollected);
+
+            Destroy(prizeInRange); // Destroy the prize GameObject
+            canCollectPrize = false; // Reset collection state
+            prizeInRange = null; // Clear the stored prize GameObject     
+
+            if (prizesCollected >= totalPrizes)
+            {
+                ShowVictoryUI(); // Show victory UI when all prizes are collected
+            }
+        }
+
+        else if (canCollectKeycard && keycardInRange != null)
+        {
+            // Play the keycard's collect sound
+            KeyBehaviour keyScript = keycardInRange.GetComponent<KeyBehaviour>();
+            if (keyScript != null && keyScript.collectSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(keyScript.collectSound);
+            }
+
+            DoorBehaviour[] allDoors = FindObjectsByType<DoorBehaviour>(FindObjectsSortMode.None);
+            foreach (DoorBehaviour door in allDoors)
+            {
+                door.DoorUnlock();
+            }
+            hasKeycard = true;
+            UpdateKeycardStatusUI();
+            Debug.Log("Keycard collected! All doors unlocked.");
+            Destroy(keycardInRange);
+            keycardInRange = null;
+            canCollectKeycard = false;
         }
     }
 
@@ -181,6 +270,26 @@ public class PlayerBehaviour : MonoBehaviour
         currentHealth = maxHealth; // Reset health to max
         healthbar.SetSlider(currentHealth); // Update health bar
         transform.position = respawnPoint; // Respawn at the set respawn point
+    }
+
+    void ShowVictoryUI()
+    {
+        if (victoryUI != null)
+        {
+            victoryUI.SetActive(true);
+            if (finalScoreText != null)
+            {
+                finalScoreText.text = "Final Score: " + points; // Display final score
+            }
+            else
+            {
+                Debug.LogWarning("Final Score Text UI is not assigned in the Inspector.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Victory UI GameObject is not assigned in the Inspector.");
+        }
     }
 
     public void SetRespawnPoint(Vector3 newPoint)

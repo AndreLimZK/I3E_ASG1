@@ -12,3 +12,4 @@ Taking Damage: Sound Effect by Homemade_SFX from Pixabay
 Recovering Damage: Sound Effect by freesound_community from Pixabay
 Coin sounds: Sound Effect by chieuk from Pixabay
 Door sounds: Sound Effect by freesound_community from Pixabay
+Collect sounds: Sound Effect by freesound_community from Pixabay
