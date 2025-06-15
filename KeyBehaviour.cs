@@ -1,18 +1,19 @@
+using System;
 using UnityEngine;
 
 public class KeyBehaviour : MonoBehaviour
 {
-    public DoorBehaviour door;
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            if (door != null)
+            DoorBehaviour[] allDoors = FindObjectsByType<DoorBehaviour>(FindObjectsSortMode.None);
+            foreach (DoorBehaviour door in allDoors)
             {
-                door.DoorUnlock(); // Call the public method
+                door.DoorUnlock();
             }
-            Destroy(gameObject); // Destroy the key when the player collides with it
+            Destroy(gameObject);
         }
-
     }
+
 }
