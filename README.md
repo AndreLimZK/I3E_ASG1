@@ -1,5 +1,13 @@
 # I3E_ASG1
+Key Controls, Game Hack, Answer Key: 
+Simple WASD movement keys, shift to run, spacebar to jump, 'E' to interact.
+There is no known game hack at the time of writing, the answer to completing the maze is to follow to coins laid out throughout the map as they lead you to the important objectives 
 
+Platforms, recommended hardware, desired settings: 
+THis game is only on PC, recommended to have at least 200w PSU and 1080p screen resolution, otherwise the in-game HUD will become buggy although its still playable. 
+
+Limitations and Bugs: 
+Due to time constraints, I had to take out a portion where the player would get projectiles to throw at certain maze walls to break them, revealing a chest with more coins that give them a higher score at the end of the game. After a certain point the game became difficult to run due the amount of assets in it, hence needing a stronger power supply. Some bugs include the player making small but sharp turns when jumping onto ledges and platforms when going through the parkour, as well as some coins not collecting when player collides with them. 
 
 Credits: 
 Used Copilot to help with bugs and checking the code logic
